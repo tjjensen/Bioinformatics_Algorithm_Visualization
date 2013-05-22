@@ -3,10 +3,12 @@
 import wx
 import seq_panel
 import de_bruijn_panel
+import keyword_panel
+import flow_panel
 
 class VizFrame(wx.Frame):
     def __init__(self, parent, title):
-        wx.Frame.__init__(self, parent, title=title, size=(1100,900))
+        wx.Frame.__init__(self, parent, title=title, size=(800,600))
         
         menubar = wx.MenuBar()
         fileMenu = wx.Menu()
@@ -18,10 +20,14 @@ class VizFrame(wx.Frame):
         self.nw_panel = seq_panel.NeedlemanWunshPanel(self)
         self.graph_submenu = GraphMenuPanel(self)
         self.bruijn_panel = de_bruijn_panel.DeBruijnPanel(self)
+        self.keyword_panel = keyword_panel.KeywordPanel(self)
+        self.flow_panel = flow_panel.FlowPanel(self)
         self.seq_submenu.Hide()
         self.nw_panel.Hide()
         self.graph_submenu.Hide()
         self.bruijn_panel.Hide()
+        self.keyword_panel.Hide()
+        self.flow_panel.Hide()
 
         self.sizer = wx.BoxSizer(wx.VERTICAL)
         self.sizer.Add(self.menu_panel, 1, wx.EXPAND)
@@ -29,11 +35,19 @@ class VizFrame(wx.Frame):
         self.sizer.Add(self.nw_panel, 1, wx.EXPAND)
         self.sizer.Add(self.graph_submenu, 1, wx.EXPAND)
         self.sizer.Add(self.bruijn_panel, 1, wx.EXPAND)
+        self.sizer.Add(self.keyword_panel, 1, wx.EXPAND)
+        self.sizer.Add(self.flow_panel, 1, wx.EXPAND)
         self.SetSizer(self.sizer)
 
         self.current_panel = self.menu_panel
         self.Center()
         self.Show(True)
+
+    def toMenu(self, event):
+        self.current_panel.Hide()
+        self.current_panel = self.menu_panel
+        self.current_panel.Show()
+        self.Layout()        
 
     def toSequenceSubmenu(self, event):
         self.current_panel.Hide()
@@ -59,7 +73,17 @@ class VizFrame(wx.Frame):
         self.current_panel.Show()
         self.Layout()
 
+    def toKeyword(self, event):
+        self.current_panel.Hide()
+        self.current_panel = self.keyword_panel
+        self.current_panel.Show()
+        self.Layout()
 
+    def toFlow(self, event):
+        self.current_panel.Hide()
+        self.current_panel = self.flow_panel
+        self.current_panel.Show()
+        self.Layout()
 
 class MenuPanel(wx.Panel):
     def __init__(self, parent):
@@ -70,14 +94,17 @@ class MenuPanel(wx.Panel):
         self.seq_btn = wx.Button(self, label='Sequence Algorithms')
         self.seq_btn.Bind(wx.EVT_BUTTON, parent.toSequenceSubmenu)
 
-        self.graph_btn = wx.Button(self, label='Graph Algorithms')
-        self.graph_btn.Bind(wx.EVT_BUTTON, parent.toGraphSubmenu)
+        self.network_btn = wx.Button(self, label='Network Flow')
+        self.network_btn.Bind(wx.EVT_BUTTON, parent.toFlow)
+
+        self.keyword_btn = wx.Button(self, label='Keyword Matching')
+        self.keyword_btn.Bind(wx.EVT_BUTTON, parent.toKeyword)
 
         self.submenu_grid = wx.GridSizer(rows=2, cols=2)
-        
+         
         self.submenu_grid.AddMany([(self.seq_btn, 0, wx.EXPAND),
-                              (self.graph_btn, 0, wx.EXPAND),
-                              (wx.Button(self, label='Sequence3 Algorithms'), 0, wx.EXPAND),
+                              (self.network_btn, 0, wx.EXPAND),
+                              (self.keyword_btn, 0, wx.EXPAND),
                               (wx.Button(self, label='Sequence4 Algorithms'), 0, wx.EXPAND)])
 
         vbox.Add(self.submenu_grid, 1, wx.EXPAND | wx.ALL, 100)

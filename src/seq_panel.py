@@ -9,7 +9,6 @@ class NeedlemanWunshPanel(bio_viz.AlgoPanel):
 
         vbox = wx.BoxSizer(wx.VERTICAL)
         hbox = wx.BoxSizer(wx.HORIZONTAL)
-        vbox.Add(hbox, 0)
         left_vbox = wx.BoxSizer(wx.VERTICAL)
         right_vbox = wx.BoxSizer(wx.VERTICAL)
         hbox.Add(left_vbox, 0, wx.EXPAND)
@@ -70,8 +69,9 @@ class NeedlemanWunshPanel(bio_viz.AlgoPanel):
         self.visualize_btn = wx.Button(self, label = 'Visualize')
         self.visualize_btn.Bind(wx.EVT_BUTTON, self.visualize)
         bottom_hbox.Add(self.back_btn, 0, wx.ALIGN_LEFT | wx.ALIGN_BOTTOM)
-        bottom_hbox.Add(wx.BoxSizer(wx.VERTICAL), 1)
+        bottom_hbox.AddStretchSpacer()
         bottom_hbox.Add(self.visualize_btn, 0, wx.ALIGN_RIGHT | wx.ALIGN_BOTTOM)
+        vbox.Add(hbox, 0)
         vbox.Add(bottom_hbox, 1, wx.ALIGN_BOTTOM | wx.EXPAND | wx.ALL, 10)
 
         self.SetSizer(vbox)
