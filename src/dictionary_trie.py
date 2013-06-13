@@ -99,14 +99,19 @@ class DictionaryTrie():
                 endOfString += 1
                 if self.node_list[currentNode].terminal:
                     match_indices.append((startOfString, database[startOfString : endOfString]))
+                t_node = currentNode
+                i = 0
+                while self.node_list[t_node].failure is not None:
+                    t_node = self.node_list[t_node].failure
+                    i += 1
+                    if self.node_list[t_node].terminal:
+                        match_indices.append((startOfString + i, database[startOfString + i: endOfString]))
             elif currentNode == 0:
                 endOfString += 1
                 startOfString = endOfString
             else:
                 currentNode = self.node_list[currentNode].failure
                 startOfString = endOfString - len(self.getPrefix(currentNode))
-                if self.node_list[currentNode].terminal:
-                    match_indices.append((startOfString, database[startOfString : endOfString]))
         return match_indices
 
     def stepwiseMatch(self, database, match_indices, startOfString, endOfString, currentNode):
@@ -117,14 +122,19 @@ class DictionaryTrie():
             endOfString += 1
             if self.node_list[currentNode].terminal:
                 match_indices.append((startOfString, database[startOfString : endOfString]))
+            t_node = currentNode
+            i = 0
+            while self.node_list[t_node].failure is not None:
+                t_node = self.node_list[t_node].failure
+                i += 1
+                if self.node_list[t_node].terminal:
+                    match_indices.append((startOfString + i, database[startOfString + i: endOfString]))
         elif currentNode == 0:
             endOfString += 1
             startOfString = endOfString
         else:
             currentNode = self.node_list[currentNode].failure
             startOfString = endOfString - len(self.getPrefix(currentNode))
-            if self.node_list[currentNode].terminal:
-                match_indices.append((startOfString, database[startOfString : endOfString]))
         return (startOfString, endOfString, currentNode)
 
     def getAllStepwise(self, database):

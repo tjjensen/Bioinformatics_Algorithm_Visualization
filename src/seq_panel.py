@@ -54,10 +54,10 @@ class NeedlemanWunshPanel(bio_viz.AlgoPanel):
         self.nb = wx.Notebook(self)
 
         nucleo_alpha = list(bio_utils.NUCLEOTIDES) + ['-']
-        self.nucleotide_page = SeqAlphaPanel(self.nb, nucleo_alpha)
+        self.nucleotide_page = SeqAlphaPanel(self.nb, nucleo_alpha, bio_utils.DEFAULT_NUCLEOTIDE)
 
         protein_alpha = list(bio_utils.AMINO_ACIDS) + ['-']
-        self.protein_page = SeqAlphaPanel(self.nb, protein_alpha)
+        self.protein_page = SeqAlphaPanel(self.nb, protein_alpha, bio_utils.DEFAULT_AMINO_ACID)
 
         self.nb.AddPage(self.nucleotide_page, 'Nucleotide')
         self.nb.AddPage(self.protein_page, 'Amino Acid')
@@ -66,11 +66,13 @@ class NeedlemanWunshPanel(bio_viz.AlgoPanel):
 
         bottom_hbox = wx.BoxSizer(wx.HORIZONTAL)
         self.back_btn = wx.Button(self, label='Back')
+        self.back_btn.Bind(wx.EVT_BUTTON, self.GetParent().toSequenceSubmenu)
         self.visualize_btn = wx.Button(self, label = 'Visualize')
         self.visualize_btn.Bind(wx.EVT_BUTTON, self.visualize)
         bottom_hbox.Add(self.back_btn, 0, wx.ALIGN_LEFT | wx.ALIGN_BOTTOM)
         bottom_hbox.AddStretchSpacer()
         bottom_hbox.Add(self.visualize_btn, 0, wx.ALIGN_RIGHT | wx.ALIGN_BOTTOM)
+        
         vbox.Add(hbox, 0)
         vbox.Add(bottom_hbox, 1, wx.ALIGN_BOTTOM | wx.EXPAND | wx.ALL, 10)
 
@@ -130,7 +132,6 @@ class NeedlemanWunshPanel(bio_viz.AlgoPanel):
         dlg.Destroy()
         return seq
 
-
     def visualize(self, event):        
         current_page = self.nb.GetCurrentPage()
         seq1 = self.seq1_txt_ctrl.GetValue()
@@ -171,9 +172,10 @@ class NeedlemanWunshPanel(bio_viz.AlgoPanel):
 
 
 class SeqAlphaPanel(wx.Panel):
-    def __init__(self, parent, alphabet):
+    def __init__(self, parent, alphabet, defaults):
         wx.Panel.__init__(self, parent)
         self.alphabet = alphabet
+        self.defaults = defaults
 
         vbox = wx.BoxSizer(wx.VERTICAL)
         matrix_box = wx.StaticBoxSizer( wx.StaticBox(self, label="Scoring Matrix" ), wx.VERTICAL)
@@ -189,11 +191,12 @@ class SeqAlphaPanel(wx.Panel):
                 elif j == 0:
                     self.scoring_grid.Add(wx.StaticText(self, label=self.alphabet[i-1]), (i,j), flag=wx.EXPAND)
                 elif j>=i:
-                    self.scoring_grid.Add(wx.TextCtrl(self, size = (35, -1)), (i,j), flag=wx.EXPAND)
+                    self.scoring_grid.Add(wx.TextCtrl(self, size = (15, 15)), (i,j), flag=wx.EXPAND)
                 else:
                     self.scoring_grid.Add(wx.StaticText(self), (i,j), flag=wx.EXPAND)
 
-        self.import_btn = wx.Button(self, label = 'Import from File')
+        self.import_btn = wx.Button(self, label = 'Use Default Value')
+        self.import_btn.Bind(wx.EVT_BUTTON, self.useDefault)
 
 
         match_txt = wx.StaticText(self, label='Update Match Score:')
@@ -232,6 +235,17 @@ class SeqAlphaPanel(wx.Panel):
         vbox.Add(hbox3, 0, wx.EXPAND)
 
         self.SetSizer(vbox)
+
+    def useDefault(self, event):
+        default = ''
+        dlg = wx.SingleChoiceDialog(self, message='Choose a file type.', caption='Choose a file type.', choices=self.defaults.keys())
+        if dlg.ShowModal() == wx.ID_OK:
+            default = dlg.GetStringSelection()
+        if default:
+            values = self.defaults[default]
+            for i, row in enumerate(values):
+                for j, cell in enumerate(row):
+                    self.scoring_grid.FindItemAtPosition((i+1,i+1+j)).GetWindow().SetValue(str(cell))
 
     def updateMatch(self, event):
         match_score = self.match_score_txt.GetValue()

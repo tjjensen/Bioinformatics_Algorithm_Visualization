@@ -104,48 +104,6 @@ class FlowPanel(wx.Panel):
 
         right_vbox.Add(edge_box, 0, wx.ALL | wx.EXPAND, 3)
 
-#        list_box = wx.StaticBoxSizer(wx.StaticBox(self, label="Keywords"), wx.VERTICAL)
-#        self.list_ctrl = wx.ListCtrl(self, size=(400,400), style=wx.LC_REPORT |  wx.LC_NO_HEADER | wx.BORDER_SUNKEN)
-#
-#        self.list_ctrl.InsertColumn(0, 'Keyword', width=400)
-#
-#        hbox2 = wx.BoxSizer(wx.HORIZONTAL)
-#        self.keyword_delete_btn = wx.Button(self, label='Remove Keywords')
-#        self.keyword_delete_btn.Bind(wx.EVT_BUTTON, self.keywordDelete)
-#        self.keyword_clear_btn = wx.Button(self, label='Clear')
-#        self.keyword_clear_btn.Bind(wx.EVT_BUTTON, self.keywordClear)
-#
-#        hbox2.Add(self.keyword_delete_btn, 0)
-#        hbox2.AddSpacer(5)
-#        hbox2.Add(self.keyword_clear_btn, 0)
-#
-#        hbox3= wx.BoxSizer(wx.HORIZONTAL)
-#
-#        keyword_static_txt = wx.StaticText(self, label='Keyword:')
-#        self.keyword_txt_ctrl = wx.TextCtrl(self, size=(200, -1))
-#        self.keyword_add_btn = wx.Button(self, label='Add Keyword')
-#        self.keyword_add_btn.Bind(wx.EVT_BUTTON, self.addKeyword)
-#
-#        hbox3.Add(keyword_static_txt, 0)
-#        hbox3.AddSpacer(5)
-#        hbox3.Add(self.keyword_txt_ctrl, 0)
-#        hbox3.AddSpacer(10)
-#        hbox3.Add(self.keyword_add_btn, 0)
-#
-#        self.keyword_from_file_btn = wx.Button(self, label='Import from File')
-#        self.keyword_from_file_btn.Bind(wx.EVT_BUTTON, self.importKeyword)
-#
-#        list_box.Add(self.list_ctrl, 1, wx.EXPAND)
-#        list_box.AddSpacer(10)
-#        list_box.Add(hbox2, 0)
-#        list_box.AddSpacer(5)
-#        list_box.Add(hbox3, 0)
-#        list_box.AddSpacer(5)
-#        list_box.Add(self.keyword_from_file_btn, 0)
-#
-#
-#        right_vbox.Add(list_box, 1, wx.EXPAND)
-
         bottom_hbox = wx.BoxSizer(wx.HORIZONTAL)
         self.back_btn = wx.Button(self, label='Back')
         self.back_btn.Bind(wx.EVT_BUTTON, self.GetParent().toMenu)
@@ -257,7 +215,7 @@ class FlowPanel(wx.Panel):
 
     def visualize(self, event):
         nodes = self.getNodes()
-        edges - self.getEdges()
+        edges = self.getEdges()
         source = str(self.source_text_ctrl.GetValue())
         sink = str(self.sink_text_ctrl.GetValue())
 
@@ -277,9 +235,10 @@ class FlowPanel(wx.Panel):
             dlg.Destroy()
             return
 
-        flow_network = flow_network.FlowNetwork(self.getNodes(), self.getEdges(), source, sink)
+        network = flow_network.FlowNetwork(nodes, edges, source, sink)
+        fframe = flow_frame.FlowFrame(self, network)
 
-        flow_frame = flow_frame.FlowFrame(self, flow_network)
+
 
 class AddEdgeDialog(wx.Dialog):
     def __init__(self, parent, nodes):

@@ -5,7 +5,8 @@ import pydot
 
 DESCRIPTION = (
     'Aho-Corasick Keyword Search\n' +
-    'Keyword search involves finding keywords with a given string, referred to as the database string. Aho-Corasick allows for multiple keywords to be processed on single database string in linear time by using failure transitions, drawn here in cyan. When the algorithm reaches a letter which the current node  does not have a corresponding child for, then the failure transition is taken.')
+    'Keyword search involves finding keywords with a given input string. The Aho-Corasick string matching algorithm allows for multiple keywords to be processed on single input string in linear time by using a modified dictionary trie. The trie is modified such that each node within the trie has a failiure transition to its longest suffix in the trie and the failure transition, represented here in green, is taken if the current node does not have a child corresponding to the current letter.\n' +
+    'String matching is utilized in bioinformatics as a fast means of string comparison. BLAST utilizes string matching in order to greatly improve speed with a modest decrease in sensitivity while performing alignments.\n')
 class KeywordFrame(wx.Frame):
     def __init__(self, parent, trie, database):
         wx.Frame.__init__(self, parent, title = 'Keyword Matching', size=(1000,800))
@@ -40,9 +41,8 @@ class KeywordDrawingPanel(wx.Panel):
 
         self.description_text = rt.RichTextCtrl(self, size=(200,400), style=rt.RE_READONLY)
         self.description_text.GetCaret().Hide()
-        self.description_text.AddParagraph('Aho-Corasick Keyword Search')
-        self.description_text.AddParagraph('Keyword search involves finding keywords with a given string, referred to as the database string. Aho-Corasick allows for multiple keywords to be processed on single database string in linear time by using failure transitions, drawn here in cyan. When the algorithm reaches a letter which the current node  does not have a corresponding child for, then the failure transition is taken.')
-        
+        for line in DESCRIPTION.splitlines():
+            self.description_text.AddParagraph(line)        
         self.list_ctrl = wx.ListCtrl(self, size=(300,400), style=wx.LC_REPORT | wx.BORDER_SUNKEN)
         self.list_ctrl.InsertColumn(0, 'Keyword', width=200)
         self.list_ctrl.InsertColumn(1, 'Index', width=90)
@@ -204,7 +204,7 @@ class StringPanel(wx.Panel):
                 self.static_text.WriteText(string[start+1:])
             self.static_text.EndFontSize()
             return
-        self.static_text.BeginTextColour(wx.GREEN)
+        self.static_text.BeginTextColour('#006400')
         self.static_text.WriteText(string[start])
         self.static_text.EndTextColour()
         if start < end-1:
@@ -212,7 +212,7 @@ class StringPanel(wx.Panel):
                 self.static_text.BeginUnderline()
                 self.static_text.WriteText(string[start+1:end-1])
                 self.static_text.EndUnderline()
-            self.static_text.BeginTextColour(wx.RED)
+            self.static_text.BeginTextColour('#660000')
             self.static_text.WriteText(string[end-1])
             self.static_text.EndTextColour()
 
@@ -231,8 +231,6 @@ class StringPanel(wx.Panel):
                 self.static_text.WriteText(string[start+2:])
         self.static_text.EndFontSize()
 
-
-
 class DrawingPanel(wx.ScrolledWindow):
     def __init__(self, parent, trie):
         wx.ScrolledWindow.__init__(self, parent)
@@ -247,7 +245,7 @@ class DrawingPanel(wx.ScrolledWindow):
         graph = pydot.Dot(graph_type='digraph')
         nodes = list()
         for i in range(len(self.trie.node_list)):
-            node = pydot.Node(str(i), style='filled', fillcolor='#CCCCCC', fontcolor='#CCCCCC')
+            node = pydot.Node(str(i), style='filled', fillcolor='#666666', fontcolor='#666666')
             if self.trie.node_list[i].terminal and i == current_node:
                 node.set_fillcolor('#FF4500')
                 node.set_fontcolor('#FF4500')
@@ -263,7 +261,7 @@ class DrawingPanel(wx.ScrolledWindow):
             graph.add_edge(pydot.Edge(nodes[edge[0]], nodes[edge[1]], label=str(self.trie.node_list[edge[1]].previous_edge)))#, labelfontcolor='#FFFFFF', fontsize='10,0', color='#FFFFFF'))
 
         for back_edge in self.trie.back_edges:
-            edge = pydot.Edge(nodes[back_edge[0]], nodes[back_edge[1]], color='#00CCDD')
+            edge = pydot.Edge(nodes[back_edge[0]], nodes[back_edge[1]], color='#006400')
             edge.set_constraint(False)
             graph.add_edge(edge)
         img_file = 'test.png'
