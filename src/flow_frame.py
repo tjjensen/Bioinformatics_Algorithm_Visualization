@@ -4,8 +4,10 @@ import pydot
 
 
 DESCRIPTION = (
-    'Aho-Corasick Keyword Search\n' +
-    'Keyword search involves finding keywords with a given string, referred to as the database string. Aho-Corasick allows for multiple keywords to be processed on single database string in linear time by using failure transitions, drawn here in cyan. When the algorithm reaches a letter which the current node  does not have a corresponding child for, then the failure transition is taken.')
+    'Ford-Fulkerson Algorithm\n' +
+    'The maximum flow problem involves finding a feasible flow through a flow network that is maximal. The Fork-Fulkerson algorithm approaches the problem by creating the flow network and adding reverse edges, drawn here in green, whose capacities are zero. The algorithm starts with a depth first search starting at the source, looking for a path to the sink. When a path with an allowed flow greater than zero is found, the graph is updated so that the flow of each edge in the path is incremented by the allowed flow and the flow of the reverse edge is decremented by the allowed flow. Continuous rounds of depth first search result in a finished graph which has maximal flow.\n'+
+    'Maximum flow problem relates to bioinformatics in that an aggregate multiple sequence alignment can be created using maximum flow between pairwise alignments. Maximum flow has also been used to find hot regions of protein interaction networks.\n')
+
 class FlowFrame(wx.Frame):
     def __init__(self, parent, flow_network):
         wx.Frame.__init__(self, parent, title = 'Network Flow', size=(1000,800))
@@ -26,7 +28,7 @@ class FlowDrawingPanel(wx.Panel):
 
         vbox = wx.BoxSizer(wx.VERTICAL)
         hbox = wx.BoxSizer(wx.HORIZONTAL)
-        self.drawing_panel = DrawingPanel(self, self.flow_network, self.steps[0])
+        self.drawing_panel = DrawingPanel(self, self.flow_network, self.steps[0][:-1])
 
         vbox1 = wx.BoxSizer(wx.VERTICAL)
         vbox1.Add(self.drawing_panel, 1, wx.EXPAND)
@@ -34,15 +36,25 @@ class FlowDrawingPanel(wx.Panel):
         
         vbox2 = wx.BoxSizer(wx.VERTICAL)
 
-        self.description_text = rt.RichTextCtrl(self, size=(200,400), style=rt.RE_READONLY)
-        self.description_text.GetCaret().Hide() 
-        self.description_text.AddParagraph('Aho-Corasick Keyword Search')
-        self.description_text.AddParagraph('Keyword search involves finding keywords with a given input string. The Aho-Corasick string matching algorithm allows for multiple keywords to be processed on single input string in linear time by using a modified dictionary trie. The trie is modified such that each node within the trie has a failiure transition to its longest suffix in the trie and the failure transition is taken if the current node does not have a child corresponding to the current letter.')
-        
+        self.description_text = rt.RichTextCtrl(self, size=(300,400), style=rt.RE_READONLY)
+        self.description_text.GetCaret().Hide()
+        for line in DESCRIPTION.splitlines():
+            self.description_text.AddParagraph(line)
+
         vbox2.Add(self.description_text, 1, wx.EXPAND)
         
         hbox.Add(vbox1, 1, wx.EXPAND)
         hbox.Add(vbox2, 0, wx.EXPAND)
+
+        hbox2 = wx.BoxSizer(wx.HORIZONTAL)
+        flow_static_txt =wx.StaticText(self, label='Current Flow:')
+        self.flow_txt_ctrl = wx.TextCtrl(self, size=(27,-1))
+        self.flow_txt_ctrl.SetEditable(False)
+        self.flow_txt_ctrl.SetValue(str(0))
+
+        hbox2.AddSpacer(10)
+        hbox2.Add(flow_static_txt, 0, wx.ALL, 5)
+        hbox2.Add(self.flow_txt_ctrl, 0, wx.ALL, 2)
 
         hbox1 = wx.BoxSizer(wx.HORIZONTAL)
         self.pause_resume_btn = wx.Button(self, label='Start')
@@ -73,6 +85,7 @@ class FlowDrawingPanel(wx.Panel):
         hbox1.Add(self.finish_btn, 0,  wx.ALL | wx.ALIGN_BOTTOM | wx.ALIGN_RIGHT, 5)
 
         vbox.Add(hbox, 1, wx.EXPAND)
+        vbox.Add(hbox2, 0, wx.EXPAND)
         vbox.Add(hbox1, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 10)
 
         self.SetSizer(vbox)
@@ -111,21 +124,25 @@ class FlowDrawingPanel(wx.Panel):
         if self.step_index <= 0:
             return
         self.step_index -= 1
-        self.drawing_panel.my_plot(self.steps[self.step_index])
+        self.drawing_panel.my_plot(self.steps[self.step_index][:-1])
+        self.flow_txt_ctrl.SetValue(str(self.steps[self.step_index][-1]))
 
     def nextTraverse(self, event):
         if self.step_index >= len(self.steps) - 1:
             return
         self.step_index += 1
-        self.drawing_panel.my_plot(self.steps[self.step_index])
+        self.drawing_panel.my_plot(self.steps[self.step_index][:-1])
+        self.flow_txt_ctrl.SetValue(str(self.steps[self.step_index][-1]))
 
     def restart(self, event):
         self.step_index = 0
-        self.drawing_panel.my_plot(self.steps[self.step_index])
+        self.drawing_panel.my_plot(self.steps[self.step_index][:-1])
+        self.flow_txt_ctrl.SetValue(str(self.steps[self.step_index][-1]))
 
     def finish(self, event):
         self.step_index = len(self.steps) - 1
-        self.drawing_panel.my_plot(self.steps[self.step_index])
+        self.drawing_panel.my_plot(self.steps[self.step_index][:-1])
+        self.flow_txt_ctrl.SetValue(str(self.steps[self.step_index][-1]))
 
 class DrawingPanel(wx.ScrolledWindow):
     def __init__(self, parent, flow_network, step):
@@ -142,7 +159,7 @@ class DrawingPanel(wx.ScrolledWindow):
         nodes = dict()
         current_node, flows = step
         for name, node in self.flow_network.nodes.iteritems():
-            g_node = pydot.Node(name, style='filled', fillcolor='#CCCCCC', fontcolor='#000000')
+            g_node = pydot.Node(name, style='filled', fillcolor='#666666', fontcolor='#000000')
             if self.flow_network.source == name:
                 g_node.set_fillcolor('#770000')
                 if name == current_node:
@@ -159,12 +176,14 @@ class DrawingPanel(wx.ScrolledWindow):
             graph.add_node(g_node)
             nodes[name] = g_node
 
-        for edge in self.flow_network.edges:
-            for tail, head, flow in flows:
-                if edge.tail == tail and edge.head == head:
-                    break
 
-            graph.add_edge(pydot.Edge(nodes[edge.tail], nodes[edge.head], label='{0}/{1}'.format(flow, edge.capacity)))#, labelfontcolor='#FFFFFF', fontsize='10,0', color='#FFFFFF'))
+        for tail, head, flow, capacity, forward in flows:
+            g_edge = pydot.Edge(nodes[tail], nodes[head], label=' {0}/{1} '.format(flow, capacity))
+            if not forward:
+                g_edge.set_color('#008800')
+                g_edge.set_constraint(False)
+            graph.add_edge(g_edge)
+
         img_file = 'test.png'
         graph.write_png(img_file)
         if self.bitmap:

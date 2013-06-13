@@ -73,9 +73,6 @@ class FlowPanel(wx.Panel):
 
         left_vbox.Add(node_box, 0, wx.ALL | wx.EXPAND, 3)
         
-
-        #############################################
-        ###########################################
         edge_box = wx.StaticBoxSizer(wx.StaticBox(self, label="Edges"), wx.VERTICAL)
         self.edge_list = wx.ListCtrl(self, size=(400,400), style=wx.LC_REPORT | wx.BORDER_SUNKEN)
 
@@ -186,6 +183,11 @@ class FlowPanel(wx.Panel):
         self.edge_list.DeleteAllItems()
 
     def addEdge(self, event):
+        if not self.getNodes():
+            dlg = wx.MessageDialog(self, 'No nodes present in graph.', 'No Nodes Found', wx.OK| wx.ICON_ERROR)
+            dlg.ShowModal()
+            dlg.Destroy()
+            return
         edge_dlg = AddEdgeDialog(self, self.getNodes())
         if edge_dlg.ShowModal() == wx.ID_OK:
             edge_info = edge_dlg.getEdge()
@@ -219,8 +221,19 @@ class FlowPanel(wx.Panel):
         source = str(self.source_text_ctrl.GetValue())
         sink = str(self.sink_text_ctrl.GetValue())
 
+        #TEST VALUES#
+        #nodes = ('a', 'b', 'c', 'd')
+        #edges = (('a', 'b', 10), ('b', 'c', 1), ('b', 'd', 10), ('a', 'c', 10), ('c', 'd', 10))
+        #source = 'a'
+        #sink = 'd'
+
         if not nodes:
             dlg = wx.MessageDialog(self, 'You must add nodes to the graph.', 'No Nodes', wx.OK | wx.ICON_ERROR)
+            dlg.ShowModal() 
+            dlg.Destroy()
+            return
+        if not edges:
+            dlg = wx.MessageDialog(self, 'You must add edges to the graph.', 'No Edges', wx.OK | wx.ICON_ERROR)
             dlg.ShowModal() 
             dlg.Destroy()
             return
