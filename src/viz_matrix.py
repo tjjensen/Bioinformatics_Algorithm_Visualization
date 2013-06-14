@@ -47,6 +47,7 @@ class VizMatrix():
         self.drawAxisTitles(dc)
         self.drawColors(dc)
         self.drawData(dc)
+        self.drawArrows(dc)
 
     def drawTitle(self, dc):
         if self.title:
@@ -97,7 +98,8 @@ class VizMatrix():
                     cell_str = str(cell).rstrip('0').rstrip('.')
                     font = dc.GetFont()
                     font.SetWeight(wx.FONTWEIGHT_LIGHT)
-                    font.SetPixelSize((.5*self.cell_size/len(cell_str),self.cell_size/len(cell_str)))
+                    if len(cell_str):
+                        font.SetPixelSize((.5*self.cell_size/len(cell_str),self.cell_size/len(cell_str)))
                     y_extra = 0
                     if len(cell_str) == 2:
                         y_extra = .25*self.cell_size
@@ -105,3 +107,29 @@ class VizMatrix():
                         y_extra = .35*self.cell_size
                     dc.SetFont(font)
                     dc.DrawText(cell_str, x + j*self.cell_size + .17*self.cell_size, y + i*self.cell_size + y_extra)
+
+    def drawArrows(self, dc):
+        x = self.x + self.col_offset
+        y = self.y + self.title_offset + self.row_offset
+        for i, row in enumerate(self.dmatrix):
+            for j, directions in enumerate(row):
+                if not directions:
+                    continue
+                for direction in directions:
+                    if direction == 'diag':
+                        self.drawArrow(dc, (x + j*self.cell_size+7, y + i*self.cell_size+7), (x + j*self.cell_size-7, y + i*self.cell_size-7))
+                    elif direction == 'up':
+                        self.drawArrow(dc, (x + j*self.cell_size+7, y + i*self.cell_size+7), (x + j*self.cell_size+7, y + i*self.cell_size-7))
+                    elif direction == 'left':
+                        self.drawArrow(dc, (x + j*self.cell_size+7, y + i*self.cell_size+7), (x + j*self.cell_size-7, y + i*self.cell_size+7))
+
+    def drawArrow(self, dc, start, end):
+        dc.DrawLine(start[0], start[1], end[0], end[1])
+        dc.SetBrush(wx.Brush('#000000'))
+        if start[0] == end[0]:
+            dc.DrawPolygon((end, (end[0] - 4,end[1] + 4), (end[0] + 4,end[1] + 4)))
+
+        elif start[1] == end[1]:
+             dc.DrawPolygon((end, (end[0] + 4,end[1] + 4), (end[0] + 4,end[1] - 4)))           
+        else:
+            dc.DrawPolygon((end, (end[0]+4, end[1]), (end[0], end[1]+4)))

@@ -10,7 +10,7 @@ DESCRIPTION = (
 
 class FlowFrame(wx.Frame):
     def __init__(self, parent, flow_network):
-        wx.Frame.__init__(self, parent, title = 'Network Flow', size=(1000,800))
+        wx.Frame.__init__(self, parent, title = 'Network Flow', size=(800,700))
 
         self.panel = FlowDrawingPanel(self, flow_network)
         self.Show(True)

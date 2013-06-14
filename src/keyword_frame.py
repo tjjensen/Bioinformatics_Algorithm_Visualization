@@ -9,10 +9,9 @@ DESCRIPTION = (
     'String matching is utilized in bioinformatics as a fast means of string comparison. BLAST utilizes string matching in order to greatly improve speed with a modest decrease in sensitivity while performing alignments.\n')
 class KeywordFrame(wx.Frame):
     def __init__(self, parent, trie, database):
-        wx.Frame.__init__(self, parent, title = 'Keyword Matching', size=(1000,800))
+        wx.Frame.__init__(self, parent, title = 'Keyword Matching', size=(800,700))
 
         self.panel = KeywordDrawingPanel(self, trie, database)
-        #self.Fit()
         self.Show(True)
 
 class KeywordDrawingPanel(wx.Panel):
@@ -42,7 +41,7 @@ class KeywordDrawingPanel(wx.Panel):
         self.description_text = rt.RichTextCtrl(self, size=(200,400), style=rt.RE_READONLY)
         self.description_text.GetCaret().Hide()
         for line in DESCRIPTION.splitlines():
-            self.description_text.AddParagraph(line)        
+            self.description_text.AddParagraph(line) 
         self.list_ctrl = wx.ListCtrl(self, size=(300,400), style=wx.LC_REPORT | wx.BORDER_SUNKEN)
         self.list_ctrl.InsertColumn(0, 'Keyword', width=200)
         self.list_ctrl.InsertColumn(1, 'Index', width=90)

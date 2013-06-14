@@ -251,8 +251,6 @@ class FlowPanel(wx.Panel):
         network = flow_network.FlowNetwork(nodes, edges, source, sink)
         fframe = flow_frame.FlowFrame(self, network)
 
-
-
 class AddEdgeDialog(wx.Dialog):
     def __init__(self, parent, nodes):
         wx.Dialog.__init__(self, parent)

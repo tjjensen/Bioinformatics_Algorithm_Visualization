@@ -15,8 +15,8 @@ class KeywordPanel(wx.Panel):
         hbox.Add(right_vbox, 1, wx.EXPAND)
 
         #Create and fill sequence box UI
-        seq_box = wx.StaticBoxSizer(wx.StaticBox(self, label="Database"), wx.VERTICAL)
-        self.db_static_txt = wx.StaticText(self, label='Database String:')
+        seq_box = wx.StaticBoxSizer(wx.StaticBox(self, label="Input String"), wx.VERTICAL)
+        self.db_static_txt = wx.StaticText(self, label='Input String:')
         self.db_txt_ctrl = wx.TextCtrl(self, size=(200, -1))
         
 

@@ -26,7 +26,7 @@ class SeqAlign():
             return False
         values = []
         if self.is_local:
-            values.append(0)
+            values.append(0.0)
         else:
             values.append(None)
         if i>0 and j>0:
@@ -83,6 +83,51 @@ class SeqAlign():
         self.D = [[[] for i in range(len(self.seq1)+1)] for i in range(len(self.seq2)+1)]
         self.D[0][0] = None
         return True
+
+    def getAlignment(self):
+
+        if self.is_local:
+            l_max = 0
+            max_index = (0,0)
+            for i, row in enumerate(self.S):
+                for j, value in enumerate(row):
+                    if value > l_max:
+                        l_max = value
+                        max_index = (i,j)
+            current_index = max_index
+            indices = list()
+            indices.append(current_index)
+            while self.S[current_index[0]][current_index[1]] > 0:
+                if self.D[current_index[0]][current_index[1]][0] == 'diag':
+                    new_index = (current_index[0]-1, current_index[1]-1)
+                    indices.append(new_index)
+                elif self.D[current_index[0]][current_index[1]][0] == 'up':
+                    new_index = (current_index[0]-1, current_index[1])
+                    indices.append(new_index)
+                elif self.D[current_index[0]][current_index[1]][0] == 'left':
+                    new_index = (current_index[0], current_index[1]-1)
+                    indices.append(new_index)
+                current_index = new_index
+            #indices.append((0,0))
+
+            return indices
+        else:
+            current_index = (len(self.S)-1, len(self.S[0])-1)
+            indices = list()
+            indices.append(current_index)
+            while current_index != (0,0):
+                if self.D[current_index[0]][current_index[1]][0] == 'diag':
+                    new_index = (current_index[0]-1, current_index[1]-1)
+                    indices.append(new_index)
+                elif self.D[current_index[0]][current_index[1]][0] == 'up':
+                    new_index = (current_index[0]-1, current_index[1])
+                    indices.append(new_index)
+                elif self.D[current_index[0]][current_index[1]][0] == 'left':
+                    new_index = (current_index[0], current_index[1]-1)
+                    indices.append(new_index)
+                current_index = new_index
+            #indices.append((0,0))
+            return indices
 
 if __name__ == '__main__':
     scores = [[2,-1,-1,-1,-1],[-1,2,-1,-1,-1],[-1,-1,2,-1,-1],[-1,-1,-1,2,-1],[-1,-1,-1,-1,-10]]

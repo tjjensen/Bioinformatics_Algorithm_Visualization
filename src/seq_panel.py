@@ -1,11 +1,10 @@
-import bio_viz
 import wx
 import bio_utils
 import seqframe
 import seq_align
-class NeedlemanWunshPanel(bio_viz.AlgoPanel):
+class NeedlemanWunshPanel(wx.Panel):
     def __init__(self, parent):
-        bio_viz.AlgoPanel.__init__(self, parent)
+        wx.Panel.__init__(self, parent)
 
         vbox = wx.BoxSizer(wx.VERTICAL)
         hbox = wx.BoxSizer(wx.HORIZONTAL)
@@ -66,7 +65,7 @@ class NeedlemanWunshPanel(bio_viz.AlgoPanel):
 
         bottom_hbox = wx.BoxSizer(wx.HORIZONTAL)
         self.back_btn = wx.Button(self, label='Back')
-        self.back_btn.Bind(wx.EVT_BUTTON, self.GetParent().toSequenceSubmenu)
+        self.back_btn.Bind(wx.EVT_BUTTON, self.GetParent().toMenu)
         self.visualize_btn = wx.Button(self, label = 'Visualize')
         self.visualize_btn.Bind(wx.EVT_BUTTON, self.visualize)
         bottom_hbox.Add(self.back_btn, 0, wx.ALIGN_LEFT | wx.ALIGN_BOTTOM)
